@@ -19,24 +19,10 @@
                 >
                     Odeslat docházku
                 </v-btn>
-                <v-btn
-                    @click="openLiveCapture"
-                    slot="activator"
-                    color="purple"
-                    dark
-                >
-                    Pořídit fotku
-                </v-btn>
             </v-flex>
         </v-layout>
-        <live-capture
-            ref="liveCapture" :exam-data="examData" /> 
         <div id="imgContainer">
-            <div class="loading" v-if="isLoading">
-                <img src="src/images/loading.gif">
-            </div>
-            <img v-if="imageUrl" :src="imageUrl" id="group">
-            <canvas ref="canvas" id="canvas" width="640" height="480"></canvas>
+            <video ref="video" id="video" width="640" height="480" autoplay></video>
             <span v-for="(tag, index) in tagged" :key="index" :style="{left: tag[0] + 'px', width: tag[1]+'px', top: tag[2]+'px', height: tag[3]+'px'}" :class="['tag', tag[4] ? 'recognized' : null]">
                 {{tag[4] ? tag[5] : ''}}
             </span>
@@ -84,7 +70,6 @@
 
 <script>
     import axios from 'axios'  
-    import liveCapture from './../modal/liveCapture.vue'
 
 
     export default {
@@ -101,18 +86,19 @@
                 imageUrl: null,
                 descriptors: '',
                 canvas: {},
-                mode: null
+                mode: null,
+                hashes: []
             }
-        },
-
-        components: {
-            liveCapture
         },
 
         computed: {
             studentsCount() {
                 return this.examData.students.length
             }
+        },
+
+        mounted() {
+            this.startRecording()
         },
 
         methods: {
@@ -176,7 +162,71 @@
                 this.canvas = this.$refs.canvas;
                 this.canvas.getContext("2d").drawImage(video, 0, 0, 640, 480)
                 this.proccess('canvas')
-            }
+            },
+            async detect() {
+                const videoEl = document.getElementById('video')
+                
+                if(videoEl.paused || videoEl.ended) {
+                    
+                    return setTimeout(() => this.detect())
+                }
+                
+                const result = await faceapi.detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreTreshold: 0.5 })).withFaceLandmarks().withFaceDescriptors()
+
+                let foundStudents = 0
+                this.tagged = []
+                result.forEach(item => {
+                    const bestMatch = this.faceMatcher.findBestMatch(item.descriptor)
+                    let recognizedHash = false
+                    if (this.hashes.indexOf(bestMatch.label) != -1 && bestMatch.distance < 0.65) {
+                        recognizedHash = bestMatch.label
+                        foundStudents++
+                    }
+                    this.tagged.push([item.alignedRect.box.x, item.alignedRect.box.width, item.alignedRect.box.y, item.alignedRect.box.height,  !!recognizedHash, recognizedHash])
+                    //this.descriptors += "{\nhash: 'xx',\ndescriptor: '"+item.descriptor.toString()+"'\n},\n"
+                })
+                this.missingStudents = this.studentsCount - foundStudents
+                this.nonIdentifiedStudents = this.tagged.length - foundStudents
+
+                //const bestMatch = result ? this.faceMatcher.findBestMatch(result.descriptor) : null
+                //this.tagged = result ? [[result.alignedRect.box.x, result.alignedRect.box.width, result.alignedRect.box.y, result.alignedRect.box.height,  !!bestMatch, bestMatch ? bestMatch.label : '']] : null
+                setTimeout(() => this.detect())
+            },
+            startRecording() {
+                this.video = this.$refs.video;
+                if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.enumerateDevices().then(devices => {
+                        let deviceId;
+                        devices.forEach((device) => {
+                            if (device.label === 'SparkoCam Virtual Webcamm') {
+                                deviceId = device.deviceId
+                            }
+                        })
+                        navigator.mediaDevices.getUserMedia({ video: deviceId ? { deviceId: { exact: device.deviceId }} : true }).then(async stream => {
+                            //this.video.src = URL.createObjectURL(stream);
+                            this.video.srcObject = stream
+                            this.video.play();
+                            await faceapi.loadSsdMobilenetv1Model('./src/weights')
+                            await faceapi.loadTinyFaceDetectorModel('./src/weights')
+                            await faceapi.loadMtcnnModel('./src/weights')
+                            await faceapi.loadFaceLandmarkModel('./src/weights')
+                            await faceapi.loadFaceLandmarkTinyModel('./src/weights')
+                            await faceapi.loadFaceRecognitionModel('./src/weights')
+                            await faceapi.loadFaceExpressionModel('./src/weights')
+                            const labeledDescriptors = []
+                            
+                            this.examData.students.forEach(student => {
+                                labeledDescriptors.push(new faceapi.LabeledFaceDescriptors(student.hash, [Float32Array.from(student.descriptor.split(','))]))
+                                this.hashes.push(student.hash)
+                            })
+
+                            this.faceMatcher = new faceapi.FaceMatcher(labeledDescriptors)
+                            
+                            this.detect()
+                        }).catch(e => alert(e.message));
+                    })
+                }
+            },
         }
     }
 </script>
