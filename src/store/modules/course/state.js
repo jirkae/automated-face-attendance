@@ -1,3 +1,4 @@
 export default {
-    code: null
+    code: null,
+    students: [],
 }

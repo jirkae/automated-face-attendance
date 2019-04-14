@@ -17,7 +17,7 @@ module.exports = {
     }
   },
   node: {
-    fs: 'empty'
+    fs: 'empty',
   },
   module: {
     rules: [
@@ -47,7 +47,8 @@ module.exports = {
       inject: true
     }),
     new CopyWebpackPlugin([
-      { from: 'weights', to: 'weights' }
+      { from: 'weights', to: 'weights' },
+      { from: 'mock', to: 'mock' }
     ])
   ]
 }

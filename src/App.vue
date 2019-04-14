@@ -8,11 +8,9 @@
         <v-layout
           align-start
         >
-          <login-modal 
-            v-model="examCredentials" />
+          <login-modal />
           <v-flex>
-            <image-container v-if="examCredentials.code !== null"
-              :examCode="examCredentials.code" />
+            <main-page v-if="students.length" />
           </v-flex>
         </v-layout>
       </v-container>
@@ -21,24 +19,18 @@
 </template>
 
 <script>
-import imageContainer from './components/imageContainer/index.vue'
+import mainPage from './pages/mainPage.vue'
 import loginModal from './components/modal/login.vue'
+import { mapState } from 'vuex'
 
 
 export default {
-
-  data: () => {
-    return {
-      drawer: false,
-      examCredentials: {
-        code: null
-      }
-    }
-  },
   components: {
-    imageContainer,
+    mainPage,
     loginModal
-  }
+  },
+
+  computed: mapState('course', ['students'])
 }
 
 </script>
