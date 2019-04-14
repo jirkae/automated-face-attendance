@@ -60,6 +60,7 @@
 
 <script>
     import axios from 'axios'  
+    import * as faceapi from 'face-api.js'
 
     function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -135,11 +136,11 @@
             },
             async loadModels() {
                 //await faceapi.loadSsdMobilenetv1Model('./src/weights')
-                await faceapi.loadTinyFaceDetectorModel('./src/weights')
+                await faceapi.loadTinyFaceDetectorModel('./weights')
                 //await faceapi.loadMtcnnModel('./src/weights')
-                await faceapi.loadFaceLandmarkModel('./src/weights')
+                await faceapi.loadFaceLandmarkModel('./weights')
                 //await faceapi.loadFaceLandmarkTinyModel('./src/weights')
-                await faceapi.loadFaceRecognitionModel('./src/weights')
+                await faceapi.loadFaceRecognitionModel('./weights')
                 //await faceapi.loadFaceExpressionModel('./src/weights')
             },
             async startRecording() {

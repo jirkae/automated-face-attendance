@@ -2,6 +2,8 @@
 const webpack = require('webpack')
 const { VueLoaderPlugin } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 module.exports = {
   mode: 'development',
   
@@ -13,6 +15,9 @@ module.exports = {
     watchOptions: {
       poll: true
     }
+  },
+  node: {
+    fs: 'empty'
   },
   module: {
     rules: [
@@ -40,6 +45,9 @@ module.exports = {
       filename: 'index.html',
       template: 'index.html',
       inject: true
-    })
+    }),
+    new CopyWebpackPlugin([
+      { from: 'weights', to: 'weights' }
+    ])
   ]
 }
