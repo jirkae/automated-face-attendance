@@ -8,7 +8,13 @@
             <v-container grid-list-md>
             <v-layout wrap>
                 <v-flex xs12>
-                <v-text-field label="kód kurzu*" required></v-text-field>
+                    <v-text-field label="xname*" required></v-text-field>
+                </v-flex>
+                <v-flex xs12>
+                    <v-text-field label="heslo*" required></v-text-field>
+                </v-flex>
+                <v-flex xs12>
+                    <v-text-field label="kód kurzu*" required></v-text-field>
                 </v-flex>
             </v-layout>
             </v-container>
