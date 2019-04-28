@@ -14,7 +14,9 @@ module.exports = {
     hot: true,
     watchOptions: {
       poll: true
-    }
+    },
+    host: '0.0.0.0',
+    port: 8080
   },
   node: {
     fs: 'empty',
@@ -50,5 +52,8 @@ module.exports = {
       { from: 'weights', to: 'weights' },
       { from: 'mock', to: 'mock' }
     ])
-  ]
+  ],
+  watchOptions: {
+    poll: true
+  }
 }

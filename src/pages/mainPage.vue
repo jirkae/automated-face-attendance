@@ -36,6 +36,7 @@
                     slot="activator"
                     color="purple"
                     dark
+                    @click="sendAttendanceCallback"
                 >
                     Odeslat docházku
                 </v-btn>
@@ -52,12 +53,34 @@
                     </span>
                     FPS: {{fps}}
                 </v-card>
-                <v-overflow-btn
-                    :items="deviceSelectItems"
-                    label="Overflow Btn"
-                    target="#dropdown-example"
-                    segmented
-                    ></v-overflow-btn>
+                <v-layout row wrap>
+                    <v-flex
+                    sm12
+                    md4
+                    lg6
+                    >
+                        <v-btn
+                            slot="activator"
+                            color="red"
+                            @click="startRecording"
+                            dark
+                        >
+                            Start nahrávání
+                        </v-btn>
+                    </v-flex>
+                    <v-flex
+                    sm12
+                    md4
+                    lg6
+                    >
+                        <v-overflow-btn
+                            :items="deviceSelectItems"
+                            label="Výběr kamery"
+                            target="#dropdown-example"
+                            segmented
+                            ></v-overflow-btn>
+                    </v-flex>
+                </v-layout>
                 <textarea v-model="descriptors"></textarea>
             </v-flex>
         </v-layout>
@@ -67,7 +90,7 @@
 <script>
     import axios from 'axios'  
     import * as faceapi from 'face-api.js'
-    import {mapState} from 'vuex'
+    import {mapState, mapActions, mapMutations} from 'vuex'
 
     function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -105,7 +128,7 @@
                 return this.studentsCount - this.foundStudents
             },
             deviceSelectItems() {
-                return this.availableDevices.map((device) => {
+                return this.availableDevices.filter(device => device.kind === 'videoinput').map(device => {
                     return {
                         text: device.label,
                         callback: () => this.changeDevice(device.deviceId)
@@ -118,7 +141,6 @@
         mounted() {
             this.loadModels()
             this.createFaceMatcher()
-            this.startRecording()
         },
 
         methods: {
@@ -151,13 +173,12 @@
                 setTimeout(() => this.detect())
             },
             async loadModels() {
-                //await faceapi.loadSsdMobilenetv1Model('./src/weights')
+                await faceapi.loadSsdMobilenetv1Model('./weights')
                 await faceapi.loadTinyFaceDetectorModel('./weights')
-                //await faceapi.loadMtcnnModel('./src/weights')
+                await faceapi.loadMtcnnModel('./weights')
                 await faceapi.loadFaceLandmarkModel('./weights')
                 await faceapi.loadFaceLandmarkTinyModel('./weights')
                 await faceapi.loadFaceRecognitionModel('./weights')
-                //await faceapi.loadFaceExpressionModel('./src/weights')
             },
             async startRecording() {
                 const video = this.$refs.video;
@@ -203,7 +224,17 @@
                     top: tag[2] * coeficient+'px',
                     height: tag[3] * coeficient+'px'
                 }
-            }
+            },
+            async sendAttendanceCallback() {
+                try {
+                    await this.sendAttendance()
+                    this.addNotification()
+                } catch(e) {
+                    this.addNotification()
+                }
+            },
+            ...mapActions('course', ['sendAttendance']),
+            ...mapMutations('notification', ['addNotification'])
         }
     }
 </script>

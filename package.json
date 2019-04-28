@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.dev.js",
-    "dev": "webpack-dev-server --config webpack.config.dev.js"
+    "dev": "webpack-dev-server --config webpack.config.dev.js",
+    "server": "babel-node ./server/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,14 +16,18 @@
     "babel-polyfill": "^6.26.0",
     "canvas": "^2.4.1",
     "copy-webpack-plugin": "^5.0.2",
-    "face-api.js": "^0.17.1",
+    "express": "^4.16.4",
+    "face-api.js": "^0.19.0",
     "vue": "^2.5.22",
-    "vue-router": "^3.0.2",
+    "vue-router": "^3.0.6",
     "vuetify": "^1.4.3",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.0",
+    "@tensorflow/tfjs-node": "^1.1.0",
+    "body-parser": "^1.18.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
+    "@babel/core": "^7.4.3",
+    "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
     "babel-loader": "^8.0.5",
     "css-loader": "^2.1.0",

@@ -1,0 +1,13 @@
+version: '3.1'
+services:
+  face-attendance:
+    container_name: 'face-attendance'
+    volumes:
+     - ./:/app
+     - /app/node_modules/
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+      - "1775:1775"
+    command: npm run server

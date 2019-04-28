@@ -15,6 +15,7 @@
         </v-layout>
       </v-container>
     </v-content>
+    <notification />
   </v-app>
 </template>
 
@@ -22,12 +23,14 @@
 import mainPage from './pages/mainPage.vue'
 import loginModal from './components/modal/login.vue'
 import { mapState } from 'vuex'
+import Notification from './components/notifications/index.vue'
 
 
 export default {
   components: {
     mainPage,
-    loginModal
+    loginModal,
+    Notification
   },
 
   computed: mapState('course', ['students'])

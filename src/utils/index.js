@@ -12,3 +12,7 @@ const getApiEndpoint = () => {
 export const getStudentsEndpoint = () => {
     return getApiEndpoint()
 }
+
+export const getAttendanceEndpoint = () => {
+    return getApiEndpoint() + '/attendance'
+}

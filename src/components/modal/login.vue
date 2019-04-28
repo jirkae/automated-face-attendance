@@ -9,14 +9,6 @@
                 <v-container grid-list-md>
                 <v-layout wrap>
                     <v-flex xs12>
-                        <v-alert
-                        :value="this.error"
-                        type="error"
-                        >
-                            Nepodařilo se získat data. Nejspíše jsou zadány špatné přihlašovací údaje
-                        </v-alert>
-                    </v-flex>
-                    <v-flex xs12>
                         <v-text-field label="xname*" required v-model="xname"></v-text-field>
                     </v-flex>
                     <v-flex xs12>
@@ -39,7 +31,7 @@
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex'
+import {mapState, mapActions, mapMutations} from 'vuex'
 
 export default {
     data() {
@@ -47,7 +39,6 @@ export default {
             xname: null,
             password: null,
             courseCode: null,
-            error: null
         }
     },
 
@@ -62,11 +53,13 @@ export default {
         async setCode() {
             try {
                 await this.loadStudents({courseCode: this.courseCode, xname: this.xname, password: this.password})
+                this.addNotification('Úspěšně přihlášeno', 'success')
             } catch(e) {
-                this.error = true
+                this.addNotification('Chybné přihlášení', 'error')
             }
         },
-        ...mapActions('course', ['loadStudents'])
+        ...mapActions('course', ['loadStudents']),
+        ...mapMutations('notification', ['addNotification'])
     }
 }
 </script>
